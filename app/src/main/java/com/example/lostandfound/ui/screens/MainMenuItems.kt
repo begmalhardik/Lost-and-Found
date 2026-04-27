@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.lostandfound.ui.model.Screen
 
 @Composable
-fun SplashScreen() {
+fun MainMenuItems(navController: NavHostController) {
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -26,7 +27,9 @@ fun SplashScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(
-            onClick = { },
+            onClick = {
+                navController.navigate(Screen.CreateAdvert.route)
+            },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFE0E0E0), // light grey
@@ -42,7 +45,9 @@ fun SplashScreen() {
         }
 
         Button(
-            onClick = { },
+            onClick = {
+                navController.navigate(Screen.AdvertList.route)
+            },
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFE0E0E0),
