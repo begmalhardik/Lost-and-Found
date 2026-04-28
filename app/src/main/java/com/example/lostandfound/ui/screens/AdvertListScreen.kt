@@ -1,18 +1,15 @@
 package com.example.lostandfound.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
@@ -22,13 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lostandfound.ui.model.AdvertItem
-import com.example.lostandfound.ui.model.Category
 import com.example.lostandfound.ui.model.PostType
 import com.example.lostandfound.viewmodel.AdvertListViewModel
 
 @Composable
 fun AdvertListScreen(
-    viewModel: AdvertListViewModel = viewModel()
+    viewModel: AdvertListViewModel = viewModel(),
+    onItemClick: (AdvertItem) -> Unit
 ) {
 
     Column(
@@ -59,19 +56,21 @@ fun AdvertListScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(viewModel.filteredItems) { item ->
-                AdvertItemCard(item)
+                AdvertItemCard(item, onItemClick)
             }
         }
     }
 }
 
 @Composable
-fun AdvertItemCard(item: AdvertItem) {
+fun AdvertItemCard(item: AdvertItem, onClick: (AdvertItem) -> Unit) {
 
     val prefix = if (item.postType == PostType.LOST) "Lost" else "Found"
 
     OutlinedCard(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(item) }
     ) {
         Text(
             text = item.title,

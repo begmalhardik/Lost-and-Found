@@ -1,15 +1,18 @@
 package com.example.lostandfound.ui.screens
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lostandfound.ui.model.Screen
+import com.example.lostandfound.viewmodel.AdvertListViewModel
 
 @Composable
 fun AppNavHost() {
 
     val navController = rememberNavController()
+    val advertListViewModel: AdvertListViewModel = viewModel()
 
     NavHost(navController, startDestination = Screen.MainMenu.route) {
 
@@ -25,7 +28,32 @@ fun AppNavHost() {
         }
 
         composable(Screen.AdvertList.route) {
-            AdvertListScreen()
+            AdvertListScreen(
+                onItemClick = { item ->
+                    navController.navigate(
+                        Screen.RemoveAdvert.createRoute(item.id)
+                    )
+                }
+            )
+        }
+
+        composable(Screen.RemoveAdvert.route) { backStackEntry ->
+
+            val itemId = backStackEntry.arguments
+                ?.getString("itemId")
+                ?.toIntOrNull()
+
+            val item = advertListViewModel.filteredItems.find { it.id == itemId }
+
+            item?.let {
+                RemoveAdvertScreen(
+                    item = it,
+                    onRemove = {
+                        // TODO: remove from ViewModel later
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 }
