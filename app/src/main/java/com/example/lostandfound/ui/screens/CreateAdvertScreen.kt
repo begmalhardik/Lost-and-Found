@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,6 +58,7 @@ fun CreateAdvertScreen(
     } ?: ""
     val keyboardController = LocalSoftwareKeyboardController.current
     val interactionSource = remember { MutableInteractionSource() }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -182,7 +184,10 @@ fun CreateAdvertScreen(
         // Save Button
         Button(
             onClick = {
-                viewModel.onSave {
+//                viewModel.onSave {
+//                    onSaveClick()
+//                }
+                viewModel.saveAdvert(context) {
                     onSaveClick()
                 }
             },

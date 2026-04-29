@@ -15,9 +15,12 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lostandfound.model.toDomain
 import com.example.lostandfound.ui.model.AdvertItem
 import com.example.lostandfound.ui.model.PostType
 import com.example.lostandfound.viewmodel.AdvertListViewModel
@@ -27,6 +30,8 @@ fun AdvertListScreen(
     viewModel: AdvertListViewModel = viewModel(),
     onItemClick: (AdvertItem) -> Unit
 ) {
+
+    val adverts by viewModel.adverts.collectAsState()
 
     Column(
         modifier = Modifier
@@ -55,8 +60,8 @@ fun AdvertListScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(viewModel.filteredItems) { item ->
-                AdvertItemCard(item, onItemClick)
+            items(adverts) { item ->
+                AdvertItemCard(item.toDomain(), onItemClick)
             }
         }
     }

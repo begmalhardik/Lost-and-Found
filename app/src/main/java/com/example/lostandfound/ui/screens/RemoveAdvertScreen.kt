@@ -13,13 +13,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.lostandfound.ui.model.AdvertItem
+import com.example.lostandfound.model.AdvertEntity
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun RemoveAdvertScreen(
-    item: AdvertItem,
+    item: AdvertEntity,
     onRemove: () -> Unit
 ) {
+
+    val formattedDate = SimpleDateFormat(
+        "dd MMM yyyy",
+        Locale.getDefault()
+    ).format(Date(item.date))
 
     Column(
         modifier = Modifier
@@ -36,8 +44,8 @@ fun RemoveAdvertScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = "2 days ago") // replace with real data later
-            Text(text = "At Burwood campus") // replace with real data
+            Text(text = formattedDate)
+            Text(text = item.location)
         }
 
         Button(
