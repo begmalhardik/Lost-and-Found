@@ -54,7 +54,7 @@ fun AppNavHost() {
 
             item?.let {
                 RemoveAdvertScreen(
-                    item = it.toDomain(),
+                    item = it,
                     onRemove = {
                         advertListViewModel.deleteAdvert(it)
                         navController.popBackStack()

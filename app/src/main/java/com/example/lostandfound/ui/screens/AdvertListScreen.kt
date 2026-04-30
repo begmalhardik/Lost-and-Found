@@ -70,7 +70,7 @@ fun AdvertListScreen(
 @Composable
 fun AdvertItemCard(item: AdvertItem, onClick: (AdvertItem) -> Unit) {
 
-    val prefix = if (item.postType == PostType.LOST) "Lost" else "Found"
+    // val prefix = if (item.postType == PostType.LOST) "Lost" else "Found"
 
     OutlinedCard(
         modifier = Modifier

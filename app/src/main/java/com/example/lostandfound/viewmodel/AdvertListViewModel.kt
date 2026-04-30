@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.lostandfound.model.AdvertEntity
 import com.example.lostandfound.model.AdvertRepository
 import com.example.lostandfound.model.AppDatabase
-import com.example.lostandfound.ui.model.AdvertItem
 import com.example.lostandfound.ui.model.Category
 import com.example.lostandfound.ui.model.PostType
 import kotlinx.coroutines.flow.SharingStarted

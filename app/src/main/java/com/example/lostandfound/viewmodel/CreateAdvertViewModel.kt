@@ -38,6 +38,9 @@ class CreateAdvertViewModel : ViewModel() {
     var showErrors by mutableStateOf(false)
         private set
 
+    var imageUri by mutableStateOf<String?>(null)
+        private set
+
     fun onPostTypeChange(type: PostType) {
         postType = type
     }
@@ -77,6 +80,10 @@ class CreateAdvertViewModel : ViewModel() {
         }
     }
 
+    fun onImageSelected(uri: String?) {
+        imageUri = uri
+    }
+
     fun saveAdvert(context: Context, onSuccess: () -> Unit) {
         if (!isValid()) {
             showErrors = true
@@ -97,7 +104,7 @@ class CreateAdvertViewModel : ViewModel() {
                     description = description,
                     date = dateMillis!!,
                     location = location,
-                    imageUri = null
+                    imageUri = imageUri
                 )
             )
             onSuccess()

@@ -1,5 +1,7 @@
 package com.example.lostandfound.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -60,6 +62,13 @@ fun CreateAdvertScreen(
     val interactionSource = remember { MutableInteractionSource() }
     val context = LocalContext.current
 
+    // for image
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        viewModel.onImageSelected(uri?.toString())
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -116,7 +125,7 @@ fun CreateAdvertScreen(
         OutlinedTextField(
             value = viewModel.phone,
             onValueChange = viewModel::onPhoneChange,
-            label = { Text("Phone") },
+            label = { Text("Contact Number") },
             isError = viewModel.showErrors && viewModel.phone.isBlank(),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions.Default.copy(
@@ -178,6 +187,13 @@ fun CreateAdvertScreen(
                 }
             )
         )
+
+        Button(
+            onClick = { launcher.launch("image/*") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Upload Image")
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
