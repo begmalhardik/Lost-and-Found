@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.lostandfound.model.AdvertEntity
 import com.example.lostandfound.model.AdvertRepository
 import com.example.lostandfound.model.AppDatabase
+import com.example.lostandfound.ui.model.Category
 import com.example.lostandfound.ui.model.PostType
 import kotlinx.coroutines.launch
 
@@ -39,6 +40,9 @@ class CreateAdvertViewModel : ViewModel() {
         private set
 
     var imageUri by mutableStateOf<String?>(null)
+        private set
+
+    var category by mutableStateOf<Category>(Category.OTHER)
         private set
 
     fun onPostTypeChange(type: PostType) {
@@ -84,6 +88,10 @@ class CreateAdvertViewModel : ViewModel() {
         imageUri = uri
     }
 
+    fun onCategorySelected(categoryIs: Category) {
+        category = categoryIs
+    }
+
     fun saveAdvert(context: Context, onSuccess: () -> Unit) {
         if (!isValid()) {
             showErrors = true
@@ -98,7 +106,7 @@ class CreateAdvertViewModel : ViewModel() {
                 AdvertEntity(
                     title = "$postType - $name",
                     postType = postType.name,
-                    category = "OTHER", // improve later
+                    category = category.name,
                     name = name,
                     phone = phone,
                     description = description,

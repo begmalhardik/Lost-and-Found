@@ -12,8 +12,11 @@ import com.example.lostandfound.model.AdvertRepository
 import com.example.lostandfound.model.AppDatabase
 import com.example.lostandfound.ui.model.Category
 import com.example.lostandfound.ui.model.PostType
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -33,13 +36,26 @@ class AdvertListViewModel(application: Application) : AndroidViewModel(applicati
     var searchQuery by mutableStateOf("")
         private set
 
+    private val searchQueryFlow = MutableStateFlow("")
+
 
 //    val filteredItems: List<AdvertItem>
 //        get() = allItems.filter { item ->
 //            item.category.name.contains(searchQuery, ignoreCase = true)
 //        }
 
-    val adverts = repository.getAllAdverts().stateIn(
+    val adverts = combine(
+        repository.getAllAdverts(),
+        searchQueryFlow
+    ) { list, query ->
+        if (query.isBlank()) {
+            list
+        } else {
+            list.filter {
+                it.category.contains(query, ignoreCase = true)
+            }
+        }
+    }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
         emptyList()
@@ -48,6 +64,7 @@ class AdvertListViewModel(application: Application) : AndroidViewModel(applicati
 
     fun onSearchChange(value: String) {
         searchQuery  = value
+        searchQueryFlow.value = value
     }
 
     fun deleteAdvert(item: AdvertEntity) {

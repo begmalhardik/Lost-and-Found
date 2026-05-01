@@ -39,7 +39,9 @@ fun RemoveAdvertScreen(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
 
-        Column {
+        Column(
+
+        ) {
             Text(
                 text = item.title,
                 style = MaterialTheme.typography.titleMedium
