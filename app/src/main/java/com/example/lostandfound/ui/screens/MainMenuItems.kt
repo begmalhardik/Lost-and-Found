@@ -62,5 +62,23 @@ fun MainMenuItems(navController: NavHostController) {
             Text("SHOW ALL LOST & FOUND ITEMS")
         }
 
+        Button(
+            onClick = {
+                navController.navigate(Screen.MapScreen.route)
+            },
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFE0E0E0),
+                contentColor = Color.DarkGray
+            ),
+            border = BorderStroke(1.dp, Color.Gray),
+            elevation = ButtonDefaults.buttonElevation(4.dp),
+            modifier = Modifier
+                .width(260.dp)
+                .padding(8.dp)
+        ) {
+            Text("SHOW ON MAP")
+        }
+
     }
 }

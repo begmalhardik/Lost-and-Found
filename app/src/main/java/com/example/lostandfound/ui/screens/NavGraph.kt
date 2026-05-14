@@ -30,6 +30,10 @@ fun AppNavHost() {
             })
         }
 
+        composable(Screen.MapScreen.route) {
+            MapScreen()
+        }
+
         composable(Screen.AdvertList.route) {
             AdvertListScreen(
                 onItemClick = { item ->
