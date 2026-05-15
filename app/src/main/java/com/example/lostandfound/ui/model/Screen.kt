@@ -6,6 +6,8 @@ sealed class Screen(val route: String) {
     object CreateAdvert : Screen("create_advertisement")
     object AdvertList : Screen("advertisement_list")
     object MapScreen : Screen("map_screen")
+
+    object PlaceAutocomplete: Screen("place_autocomplete")
     object RemoveAdvert : Screen("remove_advert/{itemId}") {
         fun createRoute(itemId: Int) = "remove_advert/$itemId"
     }

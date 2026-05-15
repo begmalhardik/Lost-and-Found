@@ -45,6 +45,12 @@ class CreateAdvertViewModel : ViewModel() {
     var category by mutableStateOf<Category>(Category.OTHER)
         private set
 
+    var latitude by mutableStateOf<Double?>(null)
+        private set
+
+    var longitude by mutableStateOf<Double?>(null)
+        private set
+
     fun onPostTypeChange(type: PostType) {
         postType = type
     }
@@ -73,7 +79,7 @@ class CreateAdvertViewModel : ViewModel() {
         return name.isNotBlank() &&
                 phone.isNotBlank() &&
                 dateMillis != null &&
-                location.isNotBlank()
+                location.isNotBlank() // replace it with this ... latitude != null && longitude != null
     }
 
     fun onSave(onSuccess: () -> Unit) {
@@ -90,6 +96,12 @@ class CreateAdvertViewModel : ViewModel() {
 
     fun onCategorySelected(categoryIs: Category) {
         category = categoryIs
+    }
+
+    fun onLocationSelected(address: String, lat: Double, lng: Double) {
+        location = address
+        latitude = lat
+        longitude = lng
     }
 
     fun saveAdvert(context: Context, onSuccess: () -> Unit) {
@@ -112,6 +124,8 @@ class CreateAdvertViewModel : ViewModel() {
                     description = description,
                     date = dateMillis!!,
                     location = location,
+                    latitude = latitude,
+                    longitude = longitude,
                     imageUri = imageUri
                 )
             )

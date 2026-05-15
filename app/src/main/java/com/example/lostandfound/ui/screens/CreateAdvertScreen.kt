@@ -1,9 +1,17 @@
 package com.example.lostandfound.ui.screens
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.location.Geocoder
+import android.location.LocationManager
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -44,24 +52,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.lostandfound.ui.model.Category
 import com.example.lostandfound.ui.model.PostType
+import com.example.lostandfound.ui.model.Screen
 import com.example.lostandfound.viewmodel.CreateAdvertViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun CreateAdvertScreen(
-    viewModel: CreateAdvertViewModel = viewModel(),
+    navController: NavController,
+    viewModel: CreateAdvertViewModel,
     onSaveClick: () -> Unit
 ) {
 
@@ -191,23 +208,149 @@ fun CreateAdvertScreen(
             )
 
             // Location
-            OutlinedTextField(
-                value = viewModel.location,
-                onValueChange = viewModel::onLocationChange,
-                label = { Text("Location") },
-                isError = viewModel.showErrors && viewModel.location.isBlank(),
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        // Handle Done action here if needed
-                        keyboardController?.hide() // To hide the keyboard when done
+//            OutlinedTextField(
+//                value = viewModel.location,
+//                onValueChange = viewModel::onLocationChange,
+//                label = { Text("Location") },
+//                isError = viewModel.showErrors && viewModel.location.isBlank(),
+//                modifier = Modifier.fillMaxWidth(),
+//                keyboardOptions = KeyboardOptions.Default.copy(
+//                    keyboardType = KeyboardType.Text,
+//                    imeAction = ImeAction.Done
+//                ),
+//                keyboardActions = KeyboardActions(
+//                    onDone = {
+//                        // Handle Done action here if needed
+//                        keyboardController?.hide() // To hide the keyboard when done
+//                    }
+//                )
+//            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Screen.PlaceAutocomplete.route)
                     }
+            ) {
+
+                OutlinedTextField(
+                    value = viewModel.location,
+                    onValueChange = {},
+                    readOnly = true,
+                    enabled = false,
+                    label = { Text("Pick a location") },
+                    modifier = Modifier.fillMaxWidth()
                 )
-            )
+            }
+
+            val context = LocalContext.current
+
+            val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+            val permissionLauncher =
+                rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) { granted ->
+
+                    if (granted) {
+
+                        val locationManager =
+                            context.getSystemService(Context.LOCATION_SERVICE)
+                                    as LocationManager
+
+                        val isGpsEnabled =
+                            locationManager.isProviderEnabled(
+                                LocationManager.GPS_PROVIDER
+                            )
+
+                        if (!isGpsEnabled) {
+
+                            context.startActivity(
+                                Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                            )
+
+                        } else {
+
+                            fusedLocationClient.getCurrentLocation(
+                                Priority.PRIORITY_HIGH_ACCURACY,
+                                null
+                            ).addOnSuccessListener { location ->
+
+                                try {
+                                    val geocoder = Geocoder(
+                                        context,
+                                        Locale.getDefault()
+                                    )
+
+                                    val addresses = geocoder.getFromLocation(
+                                        location.latitude,
+                                        location.longitude,
+                                        1
+                                    )
+
+                                    val addressText =
+                                        addresses?.firstOrNull()?.getAddressLine(0)
+                                            ?: "Unknown Location"
+
+                                    viewModel.onLocationSelected(
+                                        addressText,
+                                        location.latitude,
+                                        location.longitude
+                                    )
+
+                                } catch (e: Exception) {
+
+                                    e.printStackTrace()
+
+                                    viewModel.onLocationSelected(
+                                        "Unknown Location",
+                                        location.latitude,
+                                        location.longitude
+                                    )
+                                }
+
+//                                if (location != null) {
+//
+//                                    val locationText =
+//                                        "Lat: ${location.latitude}, Lng: ${location.longitude}"
+//
+//                                    viewModel.onLocationSelected(
+//                                        locationText,
+//                                        location.latitude,
+//                                        location.longitude
+//                                    )
+//
+//                                } else {
+//
+//                                    viewModel.onLocationSelected(
+//                                        "Location not found",
+//                                        0.0,
+//                                        0.0
+//                                    )
+//                                }
+                            }
+                        }
+                    }
+                }
+
+            Button(
+                onClick = {
+
+//                    viewModel.onLocationSelected(
+//                        "Current Location - Melbourne",
+//                        -37.8136,
+//                        144.9631
+//                    )
+
+                    permissionLauncher.launch(
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("GET CURRENT LOCATION")
+            }
 
             // Category Dropdown
             var expanded by remember { mutableStateOf(false) }
@@ -283,7 +426,7 @@ fun CreateAdvertScreen(
                     onSaveClick()
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(12.dp)
         ) {
             Text("SAVE")
         }

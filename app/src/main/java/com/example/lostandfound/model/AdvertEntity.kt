@@ -16,6 +16,8 @@ data class AdvertEntity(
     val description: String,
     val date: Long,
     val location: String,
+    val latitude: Double?,
+    val longitude: Double?,
 
     val imageUri: String? // IMPORTANT (for image)
 )

@@ -24,6 +24,8 @@ fun AdvertItem.toEntity(): AdvertEntity {
         description = "",
         date = System.currentTimeMillis(),
         location = "",
+        latitude = null,
+        longitude = null,
         imageUri = null
     )
 }

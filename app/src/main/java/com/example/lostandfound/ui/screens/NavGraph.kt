@@ -10,12 +10,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.lostandfound.model.toDomain
 import com.example.lostandfound.ui.model.Screen
 import com.example.lostandfound.viewmodel.AdvertListViewModel
+import com.example.lostandfound.viewmodel.CreateAdvertViewModel
 
 @Composable
 fun AppNavHost() {
 
     val navController = rememberNavController()
     val advertListViewModel: AdvertListViewModel = viewModel()
+    val createAdvertViewModel: CreateAdvertViewModel = viewModel()
 
     NavHost(navController, startDestination = Screen.MainMenu.route) {
 
@@ -25,9 +27,19 @@ fun AppNavHost() {
 
         composable(Screen.CreateAdvert.route) {
 
-            CreateAdvertScreen(onSaveClick = {
-                navController.popBackStack()
-            })
+            CreateAdvertScreen(
+                navController,
+                createAdvertViewModel,
+                onSaveClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.PlaceAutocomplete.route) {
+
+            PlaceAutoCompleteScreen(
+                navController = navController,
+                createAdvertViewModel
+            )
         }
 
         composable(Screen.MapScreen.route) {
