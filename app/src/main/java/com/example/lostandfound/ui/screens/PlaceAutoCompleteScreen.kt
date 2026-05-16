@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.lostandfound.ui.model.PlaceItem
 import com.example.lostandfound.viewmodel.CreateAdvertViewModel
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
@@ -44,16 +45,46 @@ fun PlaceAutoCompleteScreen(
 //    val placesClient = remember { Places.createClient(context) }
 
     val places = listOf(
-        "Melbourne",
-        "Geelong",
-        "Werribee",
-        "Footscray",
-        "Ballarat",
-        "Sunshine"
+
+        PlaceItem(
+            "Melbourne",
+            -37.8136,
+            144.9631
+        ),
+
+        PlaceItem(
+            "Geelong",
+            -38.1499,
+            144.3617
+        ),
+
+        PlaceItem(
+            "Werribee",
+            -37.9000,
+            144.6600
+        ),
+
+        PlaceItem(
+            "Footscray",
+            -37.8000,
+            144.9000
+        ),
+
+        PlaceItem(
+            "Ballarat",
+            -37.5622,
+            143.8503
+        ),
+
+        PlaceItem(
+            "Sunshine",
+            -37.7833,
+            144.8333
+        )
     )
 
     val filteredPlaces = places.filter {
-        it.contains(searchQuery, ignoreCase = true)
+        it.name.contains(searchQuery, ignoreCase = true)
     }
 
     Column(
@@ -99,9 +130,9 @@ fun PlaceAutoCompleteScreen(
                         .clickable {
 
                             viewModel.onLocationSelected(
-                                place,
-                                0.0,
-                                0.0
+                                place.name,
+                                place.latitude,
+                                place.longitude
                             )
 
                             navController.popBackStack()
@@ -138,7 +169,7 @@ fun PlaceAutoCompleteScreen(
                 ) {
 
                     Text(
-                        text = place, // prediction.getFullText(null).toString(),
+                        text = place.name, // prediction.getFullText(null).toString(),
                         modifier = Modifier.padding(16.dp)
                     )
                 }

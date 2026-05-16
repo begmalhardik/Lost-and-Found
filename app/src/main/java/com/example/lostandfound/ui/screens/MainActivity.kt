@@ -3,6 +3,7 @@ package com.example.lostandfound.ui.screens
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.lostandfound.BuildConfig
 import com.google.android.libraries.places.api.Places
 
 class MainActivity : ComponentActivity() {

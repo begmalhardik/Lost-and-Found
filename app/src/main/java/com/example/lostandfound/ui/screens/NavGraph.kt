@@ -43,7 +43,7 @@ fun AppNavHost() {
         }
 
         composable(Screen.MapScreen.route) {
-            MapScreen()
+            MapScreen(advertListViewModel)
         }
 
         composable(Screen.AdvertList.route) {

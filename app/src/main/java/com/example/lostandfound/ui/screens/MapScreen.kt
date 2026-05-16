@@ -1,15 +1,23 @@
 package com.example.lostandfound.ui.screens
 
 import android.Manifest
+import android.location.Location
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.example.lostandfound.viewmodel.AdvertListViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -20,12 +28,17 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.Priority
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun MapScreen() {
+fun MapScreen(
+    viewModel: AdvertListViewModel
+) {
 
     val context = LocalContext.current
+
+    val adverts by viewModel.adverts.collectAsState()
 
     val permissionState = rememberPermissionState(
         permission = Manifest.permission.ACCESS_FINE_LOCATION
@@ -39,6 +52,9 @@ fun MapScreen() {
         )
     }
 
+    // Radius in KM
+    var radiusKm by remember { mutableStateOf(50f) }
+
     // Request permission
     LaunchedEffect(Unit) {
         permissionState.launchPermissionRequest()
@@ -49,7 +65,11 @@ fun MapScreen() {
 
         if (permissionState.status.isGranted) {
 
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            fusedLocationClient
+                .getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    null
+                ).addOnSuccessListener { location ->
 
                 location?.let {
                     currentLocation = LatLng(
@@ -61,6 +81,33 @@ fun MapScreen() {
         }
     }
 
+    // FILTER ITEMS WITHIN RADIUS
+    val filteredAdverts = adverts.filter { advert ->
+
+        if (
+            advert.latitude != null &&
+            advert.longitude != null
+        ) {
+
+            val results = FloatArray(1)
+
+            Location.distanceBetween(
+                currentLocation.latitude,
+                currentLocation.longitude,
+                advert.latitude,
+                advert.longitude,
+                results
+            )
+
+            val distanceKm = results[0] / 1000
+
+            distanceKm <= radiusKm
+
+        } else {
+            false
+        }
+    }
+
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             currentLocation,
@@ -68,33 +115,51 @@ fun MapScreen() {
         )
     }
 
-    GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
+    Column(
+        modifier = Modifier.fillMaxSize()
     ) {
 
-        // Current location marker
-        Marker(
-            state = MarkerState(position = currentLocation),
-            title = "You are here"
+        Text(
+            text = "Showing items within ${radiusKm.toInt()} KM",
+            modifier = Modifier.padding(16.dp)
         )
 
-        val locations = listOf(
-
-            LatLng(-37.8136, 144.6631),
-            LatLng(-37.8600, 144.9800),
-            LatLng(-37.9000, 144.7000),
-            LatLng(-38.0000, 144.5000),
-            LatLng(-38.0800, 144.3500),
-            LatLng(-38.1499, 144.3617)
+        Slider(
+            value = radiusKm,
+            onValueChange = {
+                radiusKm = it
+            },
+            valueRange = 1f..100f,
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        locations.forEachIndexed { index, latLng ->
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState
+        ) {
+
+            // User marker
             Marker(
-                state = MarkerState(position = latLng),
-                title = "Lost Item ${index + 1}",
-                snippet = "Between melbourne and geelong"
+                state = MarkerState(
+                    position = currentLocation
+                ),
+                title = "Your Location"
             )
+
+            // DATABASE MARKERS
+            filteredAdverts.forEach { advert ->
+
+                Marker(
+                    state = MarkerState(
+                        position = LatLng(
+                            advert.latitude!!,
+                            advert.longitude!!
+                        )
+                    ),
+                    title = advert.title,
+                    snippet = advert.location
+                )
+            }
         }
     }
 }
